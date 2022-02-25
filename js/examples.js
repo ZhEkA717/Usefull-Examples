@@ -134,21 +134,22 @@
 // //любое отрицательное число — если после сортировки a должно идти раньше b;
 // //любое положительное число — если после сортировки b должно идти раньше a;
 // //0 — если a и b одинаковы.
-// var m = [
-//     { fio: 'Иванов', zp: 1000 },
-//     { fio: 'Петров', zp: 800 },
-//     { fio: 'Сидоров', zp: 1100 },
-//     { fio: 'Егоров', zp: 850 }
-// ];
+var m = [
+    { fio: 'Иванов', zp: 1000 },
+    { fio: 'Петров', zp: 800 },
+    { fio: 'Сидоров', zp: 1100 },
+    { fio: 'Егоров', zp: 850 }
+];
 
-// function compareFIO(a, b) {
-//     if (a.fio < b.fio) return -1;
-//     if (a.fio > b.fio) return 1;
-//     return 0;`
-// }
+function compareFIO(a, b) {
+    if (a.fio < b.fio) return -1;
+    if (a.fio > b.fio) return 1;
+    return 0;
+}
 
-// m.sort(compareFIO);
-// console.log(m);
+m.sort(compareFIO);
+console.log(m);
+
 // //Если мы хотим отсортировать массив по убыванию зарплаты, функция сравнения может быть такой:
 // function compareZP(a,b) {
 //   return b.zp-a.zp;
@@ -157,3 +158,36 @@
 // m.sort(compareZP);
 // console.log( m );
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Фильтрация серии событий — дебоунсинг, срабатывание в конце серииs
+// функция позволяет установить обработчик func, который не срабатывает слишком часто -
+    // если immediate=false - func будет вызван в конце серии событий,
+    // если immediate=true - func будет вызван в начале серии событий
+    // серия событий - последовательность событий, интервалы между которыми не превыщают interval миллисекунд
+    function debounceSerie(func,interval,immediate) {
+        var timer;
+        return function() {
+            var context=this, args=arguments;
+            var later=function() {
+                timer=null;
+                if ( !immediate )
+                    func.apply(context,args);
+            };
+            var callNow=immediate&&!timer;
+            clearTimeout(timer);
+            timer=setTimeout(later,interval);
+            if ( callNow )
+                func.apply(context,args);
+        };
+    };
+
+    var phraseElem=document.getElementById('IPhrase');
+    phraseElem.addEventListener('keyup',debounceSerie(translatePhrase,500,false));
+    // пока мы часто жмём клавиши - translatePhrase вызван НЕ будет
+
+    function translatePhrase() {
+        // запускаем длительную операцию по обработке фразы
+        var phrase=document.getElementById('IPhrase').value;
+        console.log('перевожу фразу: '+phrase);
+    }
